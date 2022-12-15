@@ -482,3 +482,48 @@ class MAP(RankingMetric):
         ans = (L / rank).mean()
 
         return ans
+
+
+class Hits(RankingMetric):
+    """Hits.
+
+    Parameters
+    ----------
+    k: int or list, optional, default: -1 (all)
+        The number of items in the top@k list.
+        If None, all items will be considered.
+
+    """
+
+    def __init__(self, k=-1):
+        RankingMetric.__init__(self, name="HR@{}".format(k), k=k)
+
+    def compute(self, gt_pos, pd_rank, **kwargs):
+        """Compute Hits.
+
+        Parameters
+        ----------
+        gt_pos: Numpy array
+            Binary vector of positive items.
+
+        pd_rank: Numpy array
+            Item ranking prediction.
+
+        **kwargs: For compatibility
+
+        Returns
+        -------
+        hits: A scalar
+            Number of hits.
+
+        """
+        if self.k > 0:
+            truncated_pd_rank = pd_rank[: self.k]
+        else:
+            truncated_pd_rank = pd_rank
+        
+        top_k_rankings = np.take(gt_pos, truncated_pd_rank)
+
+        hits = np.sum(top_k_rankings)
+
+        return hits

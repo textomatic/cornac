@@ -163,6 +163,8 @@ def ranking_eval(
     train_mat = train_set.csr_matrix
     val_mat = None if val_set is None else val_set.csr_matrix
 
+    test_pos_items_total = 0
+
     def pos_items(csr_row):
         return [
             item_idx
@@ -176,6 +178,8 @@ def ranking_eval(
         test_pos_items = pos_items(gt_mat.getrow(user_idx))
         if len(test_pos_items) == 0:
             continue
+
+        test_pos_items_total += len(test_pos_items)
 
         u_gt_pos = np.zeros(test_set.num_items, dtype=np.int)
         u_gt_pos[test_pos_items] = 1
@@ -193,12 +197,12 @@ def ranking_eval(
         item_indices = None if exclude_unknowns else np.arange(test_set.num_items)
         item_rank, item_scores = model.rank(user_idx, item_indices)
 
-        print(f"u_gt_pos.shape: {u_gt_pos.shape}")
-        print(f"u_gt_pos: {u_gt_pos}\n")
-        print(f"item_rank.shape: {item_rank.shape}")
-        print(f"item_rank: {item_rank}\n")
-        print(f"item_scores.shape: {item_scores.shape}")
-        print(f"item_scores: {item_scores}\n")
+        # print(f"u_gt_pos.shape: {u_gt_pos.shape}")
+        # print(f"u_gt_pos: {u_gt_pos}\n")
+        # print(f"item_rank.shape: {item_rank.shape}")
+        # print(f"item_rank: {item_rank}\n")
+        # print(f"item_scores.shape: {item_scores.shape}")
+        # print(f"item_scores: {item_scores}\n")
 
         for i, mt in enumerate(metrics):
             mt_score = mt.compute(
@@ -211,7 +215,10 @@ def ranking_eval(
 
     # avg results of ranking metrics
     for i, mt in enumerate(metrics):
-        avg_results.append(sum(user_results[i].values()) / len(user_results[i]))
+        if isinstance(mt, RankingMetric.Hits):
+            avg_results.append(sum(user_results[i].values()) / test_pos_items_total)
+        else:
+            avg_results.append(sum(user_results[i].values()) / len(user_results[i]))
 
     return avg_results, user_results
 
