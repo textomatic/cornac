@@ -28,3 +28,4 @@ from .ranking import Recall
 from .ranking import FMeasure
 from .ranking import AUC
 from .ranking import MAP
+from .ranking import Hits

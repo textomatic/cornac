@@ -28,7 +28,7 @@ from ..data import SentimentModality
 from ..data import Dataset
 from ..metrics import RatingMetric
 from ..metrics import RankingMetric
-from ..metrics.ranking import Hits
+from ..metrics import Hits
 from ..experiment.result import Result
 from ..utils import get_rng
 
