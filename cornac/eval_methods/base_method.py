@@ -28,6 +28,7 @@ from ..data import SentimentModality
 from ..data import Dataset
 from ..metrics import RatingMetric
 from ..metrics import RankingMetric
+from ..metrics import Hits
 from ..experiment.result import Result
 from ..utils import get_rng
 
@@ -163,6 +164,8 @@ def ranking_eval(
     train_mat = train_set.csr_matrix
     val_mat = None if val_set is None else val_set.csr_matrix
 
+    test_pos_items_total = 0
+
     def pos_items(csr_row):
         return [
             item_idx
@@ -176,6 +179,8 @@ def ranking_eval(
         test_pos_items = pos_items(gt_mat.getrow(user_idx))
         if len(test_pos_items) == 0:
             continue
+
+        test_pos_items_total += len(test_pos_items)
 
         u_gt_pos = np.zeros(test_set.num_items, dtype=np.int)
         u_gt_pos[test_pos_items] = 1
@@ -204,7 +209,10 @@ def ranking_eval(
 
     # avg results of ranking metrics
     for i, mt in enumerate(metrics):
-        avg_results.append(sum(user_results[i].values()) / len(user_results[i]))
+        if isinstance(mt, Hits):
+            avg_results.append(sum(user_results[i].values()) / test_pos_items_total)
+        else:
+            avg_results.append(sum(user_results[i].values()) / len(user_results[i]))
 
     return avg_results, user_results
 
