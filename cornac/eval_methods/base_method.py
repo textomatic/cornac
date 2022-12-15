@@ -28,6 +28,7 @@ from ..data import SentimentModality
 from ..data import Dataset
 from ..metrics import RatingMetric
 from ..metrics import RankingMetric
+from ..metrics.ranking import Hits
 from ..experiment.result import Result
 from ..utils import get_rng
 
@@ -215,7 +216,7 @@ def ranking_eval(
 
     # avg results of ranking metrics
     for i, mt in enumerate(metrics):
-        if isinstance(mt, RankingMetric.Hits):
+        if isinstance(mt, Hits):
             avg_results.append(sum(user_results[i].values()) / test_pos_items_total)
         else:
             avg_results.append(sum(user_results[i].values()) / len(user_results[i]))
