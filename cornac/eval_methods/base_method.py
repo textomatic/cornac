@@ -193,6 +193,13 @@ def ranking_eval(
         item_indices = None if exclude_unknowns else np.arange(test_set.num_items)
         item_rank, item_scores = model.rank(user_idx, item_indices)
 
+        print(f"u_gt_pos.shape: {u_gt_pos.shape}")
+        print(f"u_gt_pos: {u_gt_pos}\n")
+        print(f"item_rank.shape: {item_rank.shape}")
+        print(f"item_rank: {item_rank}\n")
+        print(f"item_scores.shape: {item_scores.shape}")
+        print(f"item_scores: {item_scores}\n")
+
         for i, mt in enumerate(metrics):
             mt_score = mt.compute(
                 gt_pos=u_gt_pos,
